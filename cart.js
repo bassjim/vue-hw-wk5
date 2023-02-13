@@ -6,14 +6,14 @@ const productModal = {
     props:['id'],
     data(){
         return{
-            model:[],
-            tempProduct:[],
+            model:{},
+            tempProduct:{},
         };
     },
     template:'#userProductModal',
     watch:{
         id(){
-            console.log('userProductModal',this.id);
+            console.log('productModal',this.id);
             if(this.id){
                 const url = `${this.apiUri}api/${this.apiPath}/admin/Products/${this.id}`;
                 console.log('productModal',this.id);
@@ -40,7 +40,8 @@ const app = Vue.createApp({
             productId:"",
             qty:1,
             cart:{},
-            loadingItem:""
+            loadingItem:"",
+            product:[]
         }
     },
     methods: {
@@ -99,11 +100,11 @@ const app = Vue.createApp({
             })
         },
     },
-    component:{
-
+    components:{
+        productModal,
     },
-    mounted:{
-
+    mounted(){
+        this.getProducts
     }
 });
 app.mount('#app');

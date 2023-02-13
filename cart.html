@@ -20,7 +20,7 @@
     <div class="container">
       <div class="mt-4">
         <!-- 產品列表 -->
-        <user-product-modal ref="userProductModal" :id="product.id" @add-to-cart="addToCart"></user-product-modal>
+        <product-modal ref="userProductModal" :id="product.id" @add-to-cart="addToCart"></product-modal>
         <table class="table align-middle">
           <thead>
             <tr>
@@ -167,7 +167,7 @@
           <div class="modal-content border-0">
             <div class="modal-header bg-dark text-white">
               <h5 class="modal-title" id="exampleModalLabel">
-                <span>{{ product.title }}</span>
+                <span>{{ tempProduct.title }}</span>
               </h5>
               <button type="button" class="btn-close"
                       data-bs-dismiss="modal" aria-label="Close"></button>
@@ -175,15 +175,15 @@
             <div class="modal-body">
               <div class="row">
                 <div class="col-sm-6">
-                  <img class="img-fluid" :src="product.imagesUrl" alt="">
+                  <img class="img-fluid" :src="tempProduct.imagesUrl" alt="">
                 </div>
                 <div class="col-sm-6">
-                  <span class="badge bg-primary rounded-pill">{{ product.category }}</span>
-                  <p>商品描述：{{ product.description }}</p>
-                  <p>商品內容：{{ product.content }}</p>
-                  <div class="h5" v-if="!product.price">{{ product.origin_price }} 元</div>
-                  <del class="h6" v-if="product.price">原價 {{ product.origin_price }} 元</del>
-                  <div class="h5" v-if="product.price">現在只要 {{ product.price }} 元</div>
+                  <span class="badge bg-primary rounded-pill">{{ tempProduct.category }}</span>
+                  <p>商品描述：{{ tempProduct.description }}</p>
+                  <p>商品內容：{{ tempProduct.content }}</p>
+                  <div class="h5" v-if="!product.price">{{ tempProduct.origin_price }} 元</div>
+                  <del class="h6" v-if="product.price">原價 {{ tempProduct.origin_price }} 元</del>
+                  <div class="h5" v-if="product.price">現在只要 {{ tempProduct.price }} 元</div>
                   <div>
                     <div class="input-group">
                       <input type="number" class="form-control"
