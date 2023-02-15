@@ -1,4 +1,4 @@
-
+import { vForm, vField ,ErrorMessage } from 'vee-validate';
 const apiUri = 'https://hexschool.github.io/v2/';
 const apiPath = 'bassjim';
 
@@ -102,6 +102,9 @@ const app = Vue.createApp({
     },
     components:{
         productModal,
+        vForm,
+        vField,
+        ErrorMessage
     },
     mounted(){
         this.getProducts
