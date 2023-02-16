@@ -76,7 +76,7 @@
           </thead>
           <tbody>
             <template v-if="cart.carts">
-              <tr v-for="item in cart.carts" :key="item.id">
+              <!-- <tr v-for="item in cart.carts" :key="item.id">
                 <td>
                   <button type="button" class="btn btn-outline-danger btn-sm" @click="removeCartItem(item.id)"
                     :disabled="loadingStatus.loadingItem === item.id">
@@ -104,7 +104,7 @@
                   {{ item.final_total }}
                 </td>
               </tr>
-            </template>
+            </template> -->
           </tbody>
           <tfoot>
             <tr>
