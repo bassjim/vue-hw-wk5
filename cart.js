@@ -23,12 +23,21 @@ const productModal ={
         modal:{},
         tempProduct:{},
         qty:1,
+        form: {
+            user: {
+              name: '',
+              email: '',
+              tel: '',
+              address: '',
+            },
+            message: '',
+    
+          }
        };
     },
     template:'#userProductModal',
     watch:{
         id(){
-            console.log(' productModal',this.id);
             if(this.id){
                 const url = `${apiUri}api/${apiPath}/product/${this.id}`;
                 axios.get(`${url}`)
@@ -62,6 +71,7 @@ const app = Vue.createApp({
             product: {},
             cart:{},
             loadingItem:'',//存ID
+            isLoading: false,
         }
     },
     methods: {
@@ -70,6 +80,7 @@ const app = Vue.createApp({
             axios.get(`${url}`)
             .then((res) =>{
                 this.products = res.data.products;
+                this.isLoading = false;
             })
         },
         openModal(id){
@@ -83,6 +94,9 @@ const app = Vue.createApp({
             const url = `${apiUri}api/${apiPath}/cart`;
             axios.post(`${url}`,{data})
             .then((res) =>{
+                Swal.fire(
+                    "加入購物車", //標題 
+                );
                 this.$refs.productModal.hide();
                 this.getCarts();
             })
@@ -128,23 +142,43 @@ const app = Vue.createApp({
         clearCart(){            
             axios.delete(`${apiUri}/api/${apiPath}/carts`)  
             .then((res)=>{
+                Swal.fire({
+                    title: "購物車目前沒有商品", //標題
+                    icon: ""
+                }
+                );                
               this.getCarts();
               this.loadingItem = ''
             })
             .catch((err)=>{
               console.log(err)
             })
-        }
+        },
+        createOrder(){
+            axios.post(`${apiUri}/api/${apiPath}/order`,{ data :this.form })
+            .then((res)=>{
+                alert(res.data.message);
+                this.getCarts();
+                this.$refs.form.resetForm();
+            })
+            .catch(error=>{            
+                console.log(error);
+            })
+        },
     },
     components:{
-        productModal
+        productModal,
     },
     mounted(){
+        this.isLoading = true;
         this.getProducts();
         this.getCarts();
+
     }
 
 });
+app.use(VueLoading.LoadingPlugin);
+app.component('loading', VueLoading.Component);
 app.component('VForm', VeeValidate.Form);
 app.component('VField', VeeValidate.Field);
 app.component('ErrorMessage', VeeValidate.ErrorMessage);
