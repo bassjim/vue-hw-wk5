@@ -26,7 +26,8 @@
         ref = "productModal">
         </product-modal>
         <!-- 產品列表 -->
-        <product-modal ref="userProductModal" :id="product.id" @add-to-cart="addToCart"></product-modal>
+        <product-modal ref="userProductModal" :id="product.id" @add-to-cart="addToCart"
+        :open-modal ="openModal"></product-modal>
         <table class="table align-middle">
           <thead>
             <tr>
@@ -67,7 +68,7 @@
         </table>
         <!-- 購物車列表 -->
         <div class="text-end">
-          <button class="btn btn-outline-danger" type="button" @click="deleteAllCarts">清空購物車</button>
+          <button class="btn btn-outline-danger" type="button" @click="clearCart">清空購物車</button>
         </div>
         <table class="table align-middle">
           <thead>
@@ -82,25 +83,31 @@
             <template v-if="cart.carts">
               <tr v-for="item in cart.carts" :key="item.id">
                 <td>
-                  <button type="button" class="btn btn-outline-danger btn-sm" @click="removeCartItem(item.id)"
-                    >
-                    <i class="fas fa-spinner fa-pulse" ></i>
+                  <button type="button" class="btn btn-outline-danger btn-sm"
+                  :disabled="item.id === loadingItem"
+                  @click="deleteItem(item.id)">
+                    <i class="fas fa-spinner fa-pulse"></i>
                     x
                   </button>
                 </td>
                 <td>
                   {{ item.product.title }}
+                  <div class="text-success">
+                    已套用優惠券
+                  </div>
                 </td>
                 <td>
                   <div class="input-group input-group-sm">
-                    <select name="" id="" class="form-control" v-modal="item.qty">
-                      <option :value="i" v-for="i in 20" :key="i+12345">{{i}}</option>
+                    <select class="form-select" v-model="item.qty"
+                    :disabled="item.id === loadingItem"
+                    @change="updateCartItem(item)">
+                      <option :value="i" v-for="i in 20" :key="i+'123456'">{{i}}</option>
                     </select>
                   </div>
                 </td>
                 <td class="text-end">
-                  <small v-if="cart.final_total !== cart.total" class="text-success">折扣價：</small>
-                  {{ item.final_total }}
+                  <small class="text-success">折扣價：</small>
+                  {{ item.total }}
                 </td>
               </tr>
             </template>
@@ -118,44 +125,45 @@
         </table>
       </div>
       <div class="my-5 row justify-content-center">
-        <!-- <v-form ref="form" class="col-md-6" v-slot="{ errors }" @submit="createOrder">
-          <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <v-field id="email" name="email" type="email" class="form-control"
-              :class="{ 'is-invalid': errors['email'] }" placeholder="請輸入 Email" rules="email|required"
-              v-model="form.user.email"></v-field>
-            <error-message name="email" class="invalid-feedback"></error-message>
-          </div>
+          <v-form ref="form" class="col-md-6" v-slot="{ errors }" >
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <v-field id="email" name="email" type="email" class="form-control"
+                       :class="{ 'is-invalid': errors['email'] }" placeholder="請輸入 Email" rules="required|email"
+                      ></v-field>
+              <error-message name="email" class="invalid-feedback"></error-message>
+            </div>
 
-          <div class="mb-3">
-            <label for="name" class="form-label">收件人姓名</label>
-            <v-field id="name" name="姓名" type="text" class="form-control" :class="{ 'is-invalid': errors['姓名'] }"
-              placeholder="請輸入姓名" rules="required" v-model="form.user.name"></v-field>
-            <error-message name="姓名" class="invalid-feedback"></error-message>
-          </div>
+            <div class="mb-3">
+              <label for="name" class="form-label">收件人姓名</label>
+              <v-field id="name" name="姓名" type="text" class="form-control" :class="{ 'is-invalid': errors['姓名'] }"
+                       placeholder="請輸入姓名" rules="required"></v-field>
+              <error-message name="姓名" class="invalid-feedback"></error-message>
+            </div>
 
-          <div class="mb-3">
-            <label for="tel" class="form-label">收件人電話</label>
-            <v-field id="tel" name="電話" type="text" class="form-control" :class="{ 'is-invalid': errors['電話'] }"
-              placeholder="請輸入電話" rules="required|min:8|max:10" v-model="form.user.tel"></v-field>
-            <error-message name="電話" class="invalid-feedback"></error-message>
-          </div>
+            <div class="mb-3">
+              <label for="tel" class="form-label">收件人電話</label>
+              <v-field id="tel" name="電話" type="tel" class="form-control" :class="{ 'is-invalid': errors['電話'] }"
+                       placeholder="請輸入電話"  rules="required|min:8"></v-field>
+              <error-message name="電話" class="invalid-feedback"></error-message>
+            </div>
 
-          <div class="mb-3">
-            <label for="address" class="form-label">收件人地址</label>
-            <v-field id="address" name="地址" type="text" class="form-control" :class="{ 'is-invalid': errors['地址'] }"
-              placeholder="請輸入地址" rules="required" v-model="form.user.address"></v-field>
-            <error-message name="地址" class="invalid-feedback"></error-message>
-          </div>
+            <div class="mb-3">
+              <label for="address" class="form-label">收件人地址</label>
+              <v-field id="address" name="地址" type="text" class="form-control" :class="{ 'is-invalid': errors['地址'] }"
+                       placeholder="請輸入地址" rules="required" ></v-field>
+              <error-message name="地址" class="invalid-feedback"></error-message>
+            </div>
 
-          <div class="mb-3">
-            <label for="message" class="form-label">留言</label>
-            <textarea name="" id="message" class="form-control" cols="30" rows="10" v-model="form.message"></textarea>
-          </div>
-          <div class="text-end">
-            <button type="submit" class="btn btn-danger">送出訂單</button>
-          </div>
-        </v-form> -->
+            <div class="mb-3">
+              <label for="message" class="form-label">留言</label>
+              <textarea id="message" class="form-control" cols="30" rows="10" ></textarea>
+            </div>
+            <div class="text-end">
+              <button type="submit" class="btn btn-danger"
+                      >送出訂單</button>
+            </div>
+          </v-form>
       </div>
     </div>
   </div>
@@ -174,7 +182,7 @@
             <div class="modal-body">
               <div class="row">
                 <div class="col-sm-6">
-                  <img class="img-fluid"  alt="">
+                  <img class="img-fluid"  alt="" :src="tempProduct.imageUrl">
                 </div>
                 <div class="col-sm-6">
                   <span class="badge bg-primary rounded-pill">{{ tempProduct.category }}</span>

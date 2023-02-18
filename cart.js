@@ -1,9 +1,23 @@
+Object.keys(VeeValidateRules).forEach(rule => {
+    if (rule !== 'default') {
+      VeeValidate.defineRule(rule, VeeValidateRules[rule]);
+    }
+  });
+  // 讀取外部的資源
+  VeeValidateI18n.loadLocaleFromURL('./zh_TW.json');
+  
+  // Activate the locale
+  VeeValidate.configure({
+    generateMessage: VeeValidateI18n.localize('zh_TW'),
+    validateOnInput: true, // 調整為：輸入文字時，就立即進行驗證
+  });
+
 
 const apiUri = 'https://vue3-course-api.hexschool.io/v2/';
 const apiPath = 'bassjim';
 
 const productModal ={
-    props:['id','addToCart'],
+    props:['id','addToCart','openModal'],
     data(){
        return{
         modal:{},
@@ -14,15 +28,17 @@ const productModal ={
     template:'#userProductModal',
     watch:{
         id(){
-            console.log(' productModal',this.id)
-            const url = `${apiUri}api/${apiPath}/product/${this.id}`;
-            axios.get(`${url}`)
-            .then(res =>{
-                console.log('單一產品',res.data.product);
-                this.tempProduct = res.data.product;
-                this.modal.show()
-            })
-        }
+            console.log(' productModal',this.id);
+            if(this.id){
+                const url = `${apiUri}api/${apiPath}/product/${this.id}`;
+                axios.get(`${url}`)
+                .then((res) =>{
+                    this.tempProduct = res.data.product;
+                    this.modal.show()
+                });
+            }
+
+        },
     },
     methods:{
         hide(){
@@ -30,8 +46,11 @@ const productModal ={
         }
     },
     mounted(){
-      this.modal =  new bootstrap.Modal(this.$refs.modal);
-    //   this.modal.show()
+        this.modal =  new bootstrap.Modal(this.$refs.modal);
+        //   監聽DOM，當MODAL關閉時....要做的事
+        this.$refs.modal.addEventListener('hidden.bs.modal', function (event) {
+        this.openModal('');
+      })
     }
 }
 
@@ -42,29 +61,29 @@ const app = Vue.createApp({
             itemId:'',
             product: {},
             cart:{},
+            loadingItem:'',//存ID
         }
     },
     methods: {
         getProducts(){
             const url = `${apiUri}api/${apiPath}/products/all`;
             axios.get(`${url}`)
-            .then(res =>{
-                console.log('產品列表',res.data.products);
+            .then((res) =>{
+
                 this.products = res.data.products;
             })
         },
         openModal(id){
             this.itemId = id;
-            console.log('產品列表',id)
         },
         addToCart(product_id,qty = 1){
             const data = {
                 product_id,
-               qty,
+                qty,
             };
             const url = `${apiUri}api/${apiPath}/cart`;
             axios.post(`${url}`,{data})
-            .then(res =>{
+            .then((res) =>{
                 console.log('加入購物車',res.data);
                 this.$refs.productModal.hide();
                 this.getCarts();
@@ -73,12 +92,44 @@ const app = Vue.createApp({
         getCarts(){
             const url = `${apiUri}api/${apiPath}/cart`;
             axios.get(`${url}`)
-            .then(res =>{
-                console.log('購物車',res.data);
+            .then((res) =>{
+
                 this.cart = res.data.data;
-            })
+            });
         },
-        
+        updateCartItem(item){
+            const data ={
+                product_id:item.product.id,
+                qty: item.qty,
+            };
+            this.loadingItem = item.id;
+            const url = `${apiUri}api/${apiPath}/cart/${item.id}`;
+            axios.put(`${url}`,{data})
+            .then((res) =>{
+
+                this.cart = res.data.data;
+                this.getCarts();
+                this.loadingItem = '';
+            });
+        },
+        deleteItem(id){
+            this.loadingItem = id;
+            axios
+            .delete(`${apiUri}api/${apiPath}/cart/${id}`)
+            .then((res) =>{
+                this.getCarts();
+            });
+        },
+        clearCart(){            
+            axios.delete(`${apiUri}/api/${apiPath}/carts`)  
+            .then((res)=>{
+              this.getCarts();
+              this.loadingItem = ''
+            })
+            .catch((err)=>{
+              console.log(err)
+            })
+        }
     },
     components:{
         productModal
