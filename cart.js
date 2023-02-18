@@ -69,7 +69,6 @@ const app = Vue.createApp({
             const url = `${apiUri}api/${apiPath}/products/all`;
             axios.get(`${url}`)
             .then((res) =>{
-
                 this.products = res.data.products;
             })
         },
@@ -84,7 +83,6 @@ const app = Vue.createApp({
             const url = `${apiUri}api/${apiPath}/cart`;
             axios.post(`${url}`,{data})
             .then((res) =>{
-                console.log('加入購物車',res.data);
                 this.$refs.productModal.hide();
                 this.getCarts();
             })
@@ -93,9 +91,11 @@ const app = Vue.createApp({
             const url = `${apiUri}api/${apiPath}/cart`;
             axios.get(`${url}`)
             .then((res) =>{
-
                 this.cart = res.data.data;
-            });
+            })
+            .catch((err)=>{
+                console.log(err)
+              })
         },
         updateCartItem(item){
             const data ={
@@ -106,11 +106,13 @@ const app = Vue.createApp({
             const url = `${apiUri}api/${apiPath}/cart/${item.id}`;
             axios.put(`${url}`,{data})
             .then((res) =>{
-
                 this.cart = res.data.data;
                 this.getCarts();
                 this.loadingItem = '';
-            });
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
         },
         deleteItem(id){
             this.loadingItem = id;
@@ -118,7 +120,10 @@ const app = Vue.createApp({
             .delete(`${apiUri}api/${apiPath}/cart/${id}`)
             .then((res) =>{
                 this.getCarts();
-            });
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
         },
         clearCart(){            
             axios.delete(`${apiUri}/api/${apiPath}/carts`)  
