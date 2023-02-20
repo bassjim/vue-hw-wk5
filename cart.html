@@ -17,17 +17,23 @@
     href="https://cdn.jsdelivr.net/npm/vue-loading-overlay@6/dist/css/index.css"
     rel="stylesheet"
   />
-
+  <link href="./cart.css" rel="stylesheet">
 </head>
 
 <body>
   <div id="app">
+    <loading :active="isLoading">
+      <div class="loadingio-spinner-ellipsis-hgpy43dezin"><div class="ldio-tnis8ck7vb8">
+      <div></div><div></div><div></div><div></div><div></div>
+      </div></div>
+    </loading>
     <div class="container">
       <div class="mt-4">
         <!-- 產品modal -->
         <product-modal
         :id ="itemId"
         :add-to-cart ="addToCart"
+        :open-modal ="openModal"
         ref = "productModal">
         </product-modal>
         <!-- 產品列表 -->
@@ -59,11 +65,11 @@
               <td>
                 <div class="btn-group btn-group-sm">
                   <button type="button" class="btn btn-outline-secondary" @click="openModal(item.id)">
-                    <i class="fas fa-spinner fa-pulse" ></i>
+                    <i class="fas fa-spinner fa-pulse" v-if="isLoading"></i>
                     查看更多
                   </button>
                   <button type="button" class="btn btn-outline-danger" @click="addToCart(item.id)">
-                    <i class="fas fa-spinner fa-pulse" ></i>
+                    <i class="fas fa-spinner fa-pulse" v-if="isLoading"></i>
                     加到購物車
                   </button>
                 </div>
@@ -91,7 +97,7 @@
                   <button type="button" class="btn btn-outline-danger btn-sm"
                   :disabled="item.id === loadingItem"
                   @click="deleteItem(item.id)">
-                    <i class="fas fa-spinner fa-pulse"></i>
+                    <i class="fas fa-spinner fa-pulse" v-if="isLoading"></i>
                     x
                   </button>
                 </td>
@@ -130,7 +136,7 @@
         </table>
       </div>
       <div class="my-5 row justify-content-center">
-          <v-form ref="form" class="col-md-6" v-slot="{ errors }" @submit="createOrder">
+          <v-form ref="form" class="col-md-6" v-slot="{ errors }" >
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
               <v-field id="email" name="email" type="email" class="form-control"
@@ -166,7 +172,7 @@
             </div>
             <div class="text-end">
               <button type="submit" class="btn btn-danger"
-                      >送出訂單</button>
+              @submit="createOrder" >送出訂單</button>
             </div>
           </v-form>
       </div>

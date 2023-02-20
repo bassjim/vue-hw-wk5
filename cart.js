@@ -23,16 +23,7 @@ const productModal ={
         modal:{},
         tempProduct:{},
         qty:1,
-        form: {
-            user: {
-              name: '',
-              email: '',
-              tel: '',
-              address: '',
-            },
-            message: '',
-    
-          }
+        
        };
     },
     template:'#userProductModal',
@@ -57,9 +48,9 @@ const productModal ={
     mounted(){
         this.modal =  new bootstrap.Modal(this.$refs.modal);
         //   監聽DOM，當MODAL關閉時....要做的事
-        this.$refs.modal.addEventListener('hidden.bs.modal', function (event) {
-        this.openModal('');
-      })
+        this.$refs.modal.addEventListener('hidden.bs.modal', event => {
+            this.openModal('')
+      });
     }
 }
 
@@ -72,6 +63,17 @@ const app = Vue.createApp({
             cart:{},
             loadingItem:'',//存ID
             isLoading: false,
+            form: {
+                user: {
+                  name: '',
+                  email: '',
+                  tel: '',
+                  address: '',
+                },
+                message: '',
+        
+              }
+
         }
     },
     methods: {
@@ -82,9 +84,13 @@ const app = Vue.createApp({
                 this.products = res.data.products;
                 this.isLoading = false;
             })
+            .catch((err)=>{
+                console.log(err)
+              })
         },
         openModal(id){
             this.itemId = id;
+
         },
         addToCart(product_id,qty = 1){
             const data = {
@@ -97,6 +103,11 @@ const app = Vue.createApp({
                 Swal.fire(
                     "加入購物車", //標題 
                 );
+                this.isLoading = true;
+                setTimeout(() => {
+                  // 0.3 秒後結束 loading
+                  this.isLoading = false;
+                },300);
                 this.$refs.productModal.hide();
                 this.getCarts();
             })
@@ -134,6 +145,11 @@ const app = Vue.createApp({
             .delete(`${apiUri}api/${apiPath}/cart/${id}`)
             .then((res) =>{
                 this.getCarts();
+                this.isLoading = true;
+                setTimeout(() => {
+                  // 0.3 秒後結束 loading
+                  this.isLoading = false;
+                },300);
             })
             .catch((err)=>{
                 console.log(err)
@@ -173,7 +189,7 @@ const app = Vue.createApp({
         this.isLoading = true;
         this.getProducts();
         this.getCarts();
-
+        
     }
 
 });
