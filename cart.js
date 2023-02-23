@@ -73,7 +73,7 @@ const app = Vue.createApp({
                 message: '',
         
               }
-
+              
         }
     },
     methods: {
@@ -101,7 +101,10 @@ const app = Vue.createApp({
             axios.post(`${url}`,{data})
             .then((res) =>{
                 Swal.fire(
-                    "加入購物車", //標題 
+                    {
+                        title: "加入購物車", //標題
+                        icon: "success"
+                    }
                 );
                 this.isLoading = true;
                 setTimeout(() => {
@@ -160,7 +163,7 @@ const app = Vue.createApp({
             .then((res)=>{
                 Swal.fire({
                     title: "購物車目前沒有商品", //標題
-                    icon: ""
+                    icon: "question"
                 }
                 );                
               this.getCarts();
@@ -170,12 +173,18 @@ const app = Vue.createApp({
               console.log(err)
             })
         },
+        //自訂驗證
+        isPhone(value) {
+            const phoneNumber = /^(09)[0-9]{8}$/
+            return phoneNumber.test(value) ? true : '需要正確的電話號碼'
+         },       
         createOrder(){
             axios.post(`${apiUri}/api/${apiPath}/order`,{ data :this.form })
             .then((res)=>{
                 alert(res.data.message);
                 this.getCarts();
                 this.$refs.form.resetForm();
+                this.clearCart('');
             })
             .catch(error=>{            
                 console.log(error);
@@ -189,7 +198,7 @@ const app = Vue.createApp({
         this.isLoading = true;
         this.getProducts();
         this.getCarts();
-        
+        this.clearCart('');
     }
 
 });
